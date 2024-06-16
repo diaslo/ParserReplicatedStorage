@@ -1,12 +1,124 @@
+local Players = game:GetService("Players")
+
+
+
+-- Создание ScreenGui
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "FilterScreenGui"
+screenGui.Parent = Players.LocalPlayer:WaitForChild("PlayerGui")
+
+-- Создание Frame для меню
+local frame = Instance.new("Frame")
+frame.Name = "FilterFrame"
+frame.Size = UDim2.new(0, 300, 0, 200)
+frame.Position = UDim2.new(0.5, -150, 0.5, -100)
+frame.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+frame.Parent = screenGui
+
+-- Создание заголовка
+local titleLabel = Instance.new("TextLabel")
+titleLabel.Name = "TitleLabel"
+titleLabel.Size = UDim2.new(1, 0, 0, 50)
+titleLabel.Position = UDim2.new(0, 0, 0, 0)
+titleLabel.BackgroundColor3 = Color3.fromRGB(200, 200, 200)
+titleLabel.Text = "Select Filters"
+titleLabel.TextSize = 24
+titleLabel.Parent = frame
+
+-- Функция для создания кнопок
+local function createButton(name, text, position)
+	local button = Instance.new("TextButton")
+	button.Name = name
+	button.Size = UDim2.new(0, 250, 0, 50)
+	button.Position = position
+	button.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
+	button.Text = text
+	button.TextSize = 18
+	button.Parent = frame
+	return button
+end
+
+-- Создание кнопок для фильтров
+local allButton = createButton("AllButton", "Parse All", UDim2.new(0, 25, 0, 60))
+local remoteEventButton = createButton("RemoteEventButton", "RemoteEvent", UDim2.new(0, 25, 0, 120))
+local localScriptButton = createButton("LocalScriptButton", "LocalScript", UDim2.new(0, 25, 0, 180))
+local scriptButton = createButton("ScriptButton", "Script", UDim2.new(0, 25, 0, 240))
+local moduleScriptButton = createButton("ModuleScriptButton", "ModuleScript", UDim2.new(0, 25, 0, 300))
+
+-- Обработка нажатия кнопок
+local filterOptions = {
+	parseAll = true,
+	remoteEvent = false,
+	localScript = false,
+	script = false,
+	moduleScript = false,
+}
+
+
 local function printChildren(folder, path)
 	path = path or folder.Name  -- Инициализация пути текущей папкой, если путь не передан
 	for _, child in ipairs(folder:GetChildren()) do
 		local childPath = path .. "/" .. child.Name  -- Формируем полный путь к текущему ребенку
-		print(child.ClassName .. ": " .. childPath)
+		local className = child.ClassName
+
+		local shouldPrint = false
+		if filterOptions.parseAll then
+			shouldPrint = true
+		elseif filterOptions.remoteEvent and className == "RemoteEvent" then
+			shouldPrint = true
+		elseif filterOptions.localScript and className == "LocalScript" then
+			shouldPrint = true
+		elseif filterOptions.script and className == "Script" then
+			shouldPrint = true
+		elseif filterOptions.moduleScript and className == "ModuleScript" then
+			shouldPrint = true
+		end
+
+		if shouldPrint then
+			print(className .. ": " .. childPath)
+		end
+
 		if child:IsA("Folder") then
 			printChildren(child, childPath)  -- Рекурсивный вызов с обновленным путем
 		end
 	end
 end
+
+local function updateButtons()
+	allButton.Text = filterOptions.parseAll and "> Parse All" or "Parse All"
+	remoteEventButton.Text = filterOptions.remoteEvent and "> RemoteEvent" or "RemoteEvent"
+	localScriptButton.Text = filterOptions.localScript and "> LocalScript" or "LocalScript"
+	scriptButton.Text = filterOptions.script and "> Script" or "Script"
+	moduleScriptButton.Text = filterOptions.moduleScript and "> ModuleScript" or "ModuleScript"
+end
+
+local function onButtonClicked(button)
+	local filterName = button.Name:gsub("Button", "")
+	filterOptions.parseAll = false
+	filterOptions.remoteEvent = (filterName == "RemoteEvent")
+	filterOptions.localScript = (filterName == "LocalScript")
+	filterOptions.script = (filterName == "Script")
+	filterOptions.moduleScript = (filterName == "ModuleScript")
+
+	updateButtons()
+	printChildren(game.ReplicatedStorage)
+end
+
+allButton.MouseButton1Click:Connect(function()
+	filterOptions.parseAll = true
+	filterOptions.remoteEvent = false
+	filterOptions.localScript = false
+	filterOptions.script = false
+	filterOptions.moduleScript = false
+
+	updateButtons()
+	printChildren(game.ReplicatedStorage)
+end)
+
+remoteEventButton.MouseButton1Click:Connect(function() onButtonClicked(remoteEventButton) end)
+localScriptButton.MouseButton1Click:Connect(function() onButtonClicked(localScriptButton) end)
+scriptButton.MouseButton1Click:Connect(function() onButtonClicked(scriptButton) end)
+moduleScriptButton.MouseButton1Click:Connect(function() onButtonClicked(moduleScriptButton) end)
+
 
 printChildren(game.ReplicatedStorage)
