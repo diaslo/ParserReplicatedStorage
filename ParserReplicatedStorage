@@ -1,80 +1,12 @@
-local Players = game:GetService("Players")
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
-
--- Определение типов, которые нужно искать
-local validTypes = {
-    Folder = true,
-    ModuleScript = true,
-    Script = true,
-    LocalScript = true,
-    RemoteEvent = true,
-}
-
--- Рекурсивная функция для поиска объектов
-local function searchObjects(folder, name, path, results)
-    for _, child in ipairs(folder:GetChildren()) do
-        local childPath = path .. "/" .. child.Name
-        if validTypes[child.ClassName] and string.find(child.Name:lower(), name:lower()) then
-            table.insert(results, childPath)
-        end
-        if child:IsA("Folder") then
-            searchObjects(child, name, childPath, results)
-        end
-    end
+local function printChildren(folder, path)
+	path = path or folder.Name  -- Инициализация пути текущей папкой, если путь не передан
+	for _, child in ipairs(folder:GetChildren()) do
+		local childPath = path .. "/" .. child.Name  -- Формируем полный путь к текущему ребенку
+		print(child.ClassName .. ": " .. childPath)
+		if child:IsA("Folder") then
+			printChildren(child, childPath)  -- Рекурсивный вызов с обновленным путем
+		end
+	end
 end
 
--- Функция для отображения результатов поиска
-local function displayResults(results)
-    local resultString = ""
-    for _, result in ipairs(results) do
-        resultString = resultString .. result .. "\n"
-    end
-    return resultString
-end
-
--- Создание GUI
-local player = Players.LocalPlayer
-local playerGui = player:WaitForChild("PlayerGui")
-
-local screenGui = Instance.new("ScreenGui")
-screenGui.Parent = playerGui
-
-local textBox = Instance.new("TextBox")
-textBox.Size = UDim2.new(0, 200, 0, 50)
-textBox.Position = UDim2.new(0.5, -100, 0.4, -25)
-textBox.PlaceholderText = "Enter object name"
-textBox.Parent = screenGui
-
-local searchButton = Instance.new("TextButton")
-searchButton.Size = UDim2.new(0, 200, 0, 50)
-searchButton.Position = UDim2.new(0.5, -100, 0.4, 25)
-searchButton.Text = "Search"
-searchButton.Parent = screenGui
-
-local resultsFrame = Instance.new("ScrollingFrame")
-resultsFrame.Size = UDim2.new(0, 400, 0, 300)
-resultsFrame.Position = UDim2.new(0.5, -200, 0.6, -150)
-resultsFrame.BackgroundTransparency = 0.5
-resultsFrame.BackgroundColor3 = Color3.new(0, 0, 0)
-resultsFrame.Parent = screenGui
-
-local resultsText = Instance.new("TextLabel")
-resultsText.Size = UDim2.new(1, 0, 1, 0)
-resultsText.BackgroundTransparency = 1
-resultsText.TextWrapped = true
-resultsText.TextYAlignment = Enum.TextYAlignment.Top
-resultsText.TextColor3 = Color3.new(1, 1, 1)
-resultsText.Text = ""
-resultsText.Parent = resultsFrame
-
--- Обработка нажатия кнопки поиска
-searchButton.MouseButton1Click:Connect(function()
-    local searchName = textBox.Text
-    if searchName and searchName ~= "" then
-        local results = {}
-        searchObjects(ReplicatedStorage, searchName, "ReplicatedStorage", results)
-        resultsText.Text = displayResults(results)
-    else
-        resultsText.Text = "Please enter a valid object name."
-    end
-end)
+printChildren(game.ReplicatedStorage)
