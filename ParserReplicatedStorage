@@ -1,0 +1,10 @@
+local function printChildren(folder)
+	for _, child in ipairs(folder:GetChildren()) do
+		print(child.ClassName .. ": " .. child.Name)
+		if child:IsA("Folder") then
+			printChildren(child)
+		end
+	end
+end
+
+printChildren(game.ReplicatedStorage)
