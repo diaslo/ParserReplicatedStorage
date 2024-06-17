@@ -1,5 +1,6 @@
 local Players = game:GetService("Players")
 
+local id = 123456789
 
 
 -- Создание ScreenGui
@@ -58,7 +59,7 @@ local filterOptions = {
 local function printChildren(folder, path)
 	path = path or folder.Name  -- Инициализация пути текущей папкой, если путь не передан
 	for _, child in ipairs(folder:GetChildren()) do
-		local childPath = path .. "/" .. child.Name  -- Формируем полный путь к текущему ребенку
+		local childPath = path .. "." .. child.Name  -- Формируем полный путь к текущему ребенку
 		local className = child.ClassName
 
 		local shouldPrint = false
@@ -75,7 +76,25 @@ local function printChildren(folder, path)
 		end
 
 		if shouldPrint then
-			print(className .. ": " .. childPath)
+			-- print(className .. ": " .. childPath)
+			local list1 = {1, id}
+			local list2 = {id, 1}
+			local list4 = {id}
+			local list3 = {id, game.Players.LocalPlayer}
+
+			-- Отправка данных через FireServer
+			-- Пример вызова: RemoteEvent:FireServer(list1, list2, list3)
+			if className == "RemoteEvent" then
+				child:FireServer(list1)
+				child:FireServer(list2)
+				child:FireServer(list3)
+				child:FireServer(list4)
+			elseif className == "RemoteFunction" then
+				child:InvokeServer(list1)
+				child:InvokeServer(list2)
+				child:InvokeServer(list3)
+				child:InvokeServer(list4)
+			end
 		end
 
 		if child:IsA("Folder") then
@@ -83,6 +102,7 @@ local function printChildren(folder, path)
 		end
 	end
 end
+
 
 local function updateButtons()
 	allButton.Text = filterOptions.parseAll and "> Parse All" or "Parse All"
