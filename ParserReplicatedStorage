@@ -1,6 +1,6 @@
 local Players = game:GetService("Players")
 
-local id = 17886878829
+local id = 17791808881
 
 
 -- Создание ScreenGui
