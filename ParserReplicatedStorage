@@ -1,6 +1,6 @@
 local Players = game:GetService("Players")
 
-local id = 17826966994
+local id = 17895254131
 
 
 -- Создание ScreenGui
@@ -85,15 +85,15 @@ local function printChildren(folder, path)
 			-- Отправка данных через FireServer
 			-- Пример вызова: RemoteEvent:FireServer(list1, list2, list3)
 			if className == "RemoteEvent" then
-				child:FireServer(list1)
-				child:FireServer(list2)
-				child:FireServer(list3)
-				child:FireServer(list4)
+				child:FireServer(unpack(list1))
+				child:FireServer(unpack(list2))
+				child:FireServer(unpack(list3))
+				child:FireServer(unpack(list4))
 			elseif className == "RemoteFunction" then
-				child:InvokeServer(list1)
-				child:InvokeServer(list2)
-				child:InvokeServer(list3)
-				child:InvokeServer(list4)
+				child:InvokeServer(unpack(list1))
+				child:InvokeServer(unpack(list2))
+				child:InvokeServer(unpack(list3))
+				child:InvokeServer(unpack(list4))
 			end
 		end
 
